@@ -7,5 +7,9 @@ module MyTradeWizard
       @stocks = []
     end
 
+    def <<(stock)
+      @stocks << stock
+    end
+
   end
 end
