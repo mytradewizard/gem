@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.version       = MyTradeWizard::VERSION
   gem.authors       = ["mytradewizard"]
   gem.email         = ["zack@mytradewizard.com"]
-  gem.description   = "Helpers for CME Group and Interactive Brokers"
+  gem.description   = "Helpers for CME Group, Interactive Brokers, and Yahoo Finance"
   gem.summary       = "My Trade Wizard"
   gem.homepage      = ""
   
