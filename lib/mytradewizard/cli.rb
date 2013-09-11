@@ -34,14 +34,14 @@ module MyTradeWizard
     def CL
       ib = MyTradeWizard::InteractiveBrokers.new
       ib.connect
-      puts "Front month: " + ib.front_month(:CL)
+      puts "Front month: " + ib.front_month(:CL).expiry
     end
 
     desc "QM", "Determines the front month Mini-Crude future contract"
     def QM
       ib = MyTradeWizard::InteractiveBrokers.new
       ib.connect
-      puts "Front month: " + ib.front_month(:QM)
+      puts "Front month: " + ib.front_month(:QM).expiry
     end
 
   end
