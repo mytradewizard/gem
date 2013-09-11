@@ -18,6 +18,7 @@ module MyTradeWizard
         begin
           @ib_ruby = IB::Connection.new :host => self.class.host, :port => self.class.port
           subscribe_to_alerts
+          sleep 0.1
           fetch_accounts
           return @ib_ruby
         rescue Exception => exception
@@ -125,8 +126,12 @@ module MyTradeWizard
   private
 
     def subscribe_to_alerts
-      @ib_ruby.subscribe(:Alert, :ReceiveFA, :OpenOrder, :OrderStatus, :ExecutionData, :CommissionReport) do |msg|
-        puts msg.to_human unless msg.to_human.include?("No security definition has been found for the request")
+      @ib_ruby.subscribe(:Alert, :ReceiveFA, :OpenOrder, :OrderStatus, :ExecutionData, :CommissionReport, :ManagedAccounts) do |msg|
+        unless [:Alert, :ManagedAccounts].include? msg.message_type
+          unless msg.to_human.include?("No security definition has been found for the request")
+            puts msg.to_human
+          end
+        end
       end
     end
 
@@ -138,7 +143,6 @@ module MyTradeWizard
       while @accounts.nil?
         sleep 1
       end
-      puts "Accounts: #{@accounts.join(',')}"
     end
 
     def CL(expiry)
