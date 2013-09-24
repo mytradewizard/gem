@@ -15,5 +15,10 @@ module MyTradeWizard
     def close
       @hash['Close']
     end
+    #def sign
+    #  return 1 if close > open
+    #  return -1 if close < open
+    #  return 0 if close == open
+    #end
   end
 end

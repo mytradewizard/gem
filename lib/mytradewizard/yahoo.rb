@@ -17,8 +17,8 @@ module MyTradeWizard
           day = -1
         end
         row = 1
-        bars = Hash.new
-        while (bars.length < days)
+        daily_bars = MyTradeWizard::DailyBars.new
+        while (daily_bars.length < days)
           bar = Hash.new
           csv[row].each_with_index do |col, i|
             name = header[i]
@@ -32,11 +32,11 @@ module MyTradeWizard
             end
             bar[name] = value
           end
-          bars[day] = MyTradeWizard::OHLC.new(bar)
+          daily_bars.add(day, MyTradeWizard::OHLC.new(bar))
           row += 1
           day -= 1
         end
-        bars
+        daily_bars
       end
 
     private

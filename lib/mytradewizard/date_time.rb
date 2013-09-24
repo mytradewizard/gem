@@ -1,28 +1,32 @@
 module MyTradeWizard
-  class DateTime
-    class << self
+  module DateTime
 
-      def WaitUntil(hour, minute)
-        print "Waiting until #{hour}:#{minute} ..."    
-        until time_is(hour, minute)
-          sleep 60
-          print '.'
-        end
+    HR = 360
+
+    def wait_until(hour, minute)
+      print "Waiting until #{hour}:#{minute} ..."    
+      until time_is(hour, minute)
+        sleep 60
+        print '.'
       end
+    end
 
-      private
+    def friday
+      Time.now.utc.wday == 5
+    end
 
-      def time_is(hour, minute)
-        if (1..5).include?(Time.now.utc.wday)
-          if Time.now.utc.hour == hour
-            if Time.now.utc.min >= minute
-              return true
-            end
+    private
+
+    def time_is(hour, minute)
+      if (1..5).include?(Time.now.utc.wday)
+        if Time.now.utc.hour == hour
+          if Time.now.utc.min >= minute
+            return true
           end
         end
-        false
       end
-
+      false
     end
+
   end
 end

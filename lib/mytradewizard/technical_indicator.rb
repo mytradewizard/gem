@@ -1,6 +1,5 @@
 module MyTradeWizard
   module TechnicalIndicator
-    class << self
 
       def SMA(bars)
         x = 0
@@ -12,6 +11,5 @@ module MyTradeWizard
         return x / n
       end
 
-    end
   end
 end
