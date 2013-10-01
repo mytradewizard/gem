@@ -91,7 +91,8 @@ module MyTradeWizard
         if msg.message_type == :PortfolioValue
           if msg.contract.sec_type == :stock
             stock = MyTradeWizard::Stock.new(msg.contract.symbol)
-            p << stock
+            size = msg.position
+            p << MyTradeWizard::Position.new(stock, size)
           end
         end
       end
@@ -99,7 +100,17 @@ module MyTradeWizard
       p
     end
 
-    def place_market_order(account, action, quantity, contract, good_after, good_till)
+    def place_market_order(account, action, quantity, contract)
+      order = IB::Order.new :total_quantity => quantity,
+                            :action => action.to_s,
+                            :order_type => 'MKT',
+                            :account => account
+      @ib_ruby.wait_for :NextValidId
+      @ib_ruby.place_order order, contract
+      puts "#{action} #{quantity} #{contract.symbol}"
+    end
+
+    def place_market_order_between(account, action, quantity, contract, good_after, good_till)
       order = IB::Order.new :total_quantity => quantity,
                             :action => action.to_s,
                             :order_type => 'MKT',

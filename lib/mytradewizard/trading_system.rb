@@ -22,5 +22,9 @@ module MyTradeWizard
       @positions = @ib.positions(@account)
     end
 
+    def place_market_order(action, quantity, contract)
+      @ib.place_market_order(@account, action, quantity, contract)
+    end
+
   end
 end

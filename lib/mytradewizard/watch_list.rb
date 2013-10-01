@@ -3,8 +3,9 @@ module MyTradeWizard
 
     attr_accessor :stocks
 
-    def initialize
+    def initialize(stocks = [])
       @stocks = []
+      self << stocks
     end
 
     def <<(x)

@@ -3,15 +3,20 @@ require 'mytradewizard'
 module MyTradeWizard
   class StockTradingSystem < MyTradeWizard::TradingSystem
 
-    attr_reader :watch_list
+    include MyTradeWizard::WatchLists
+
+    attr_accessor :watch_list
+    attr_writer :position_size
 
     def initialize
       super
       @watch_list = MyTradeWizard::WatchList.new
+      @position_size = 5000
       @data = nil
     end
 
-    def preload(stock, days)
+    def preload(days, stock)
+      @stock = stock
       @data = MyTradeWizard::Yahoo.OHLC(stock.symbol, days)
       if @data.length < days
         puts "ERROR: Only #{@data.length}/#{days} days of data for #{stock.symbol}"
@@ -28,6 +33,14 @@ module MyTradeWizard
 
     def close(day)
       @data.day(day).close
+    end
+
+    def buy
+      place_market_order "BUY", @position_size/close(t).floor, @stock.contract
+    end
+
+    def sell(position)
+      place_market_order "SELL", position.size, @stock.contract
     end
 
   end

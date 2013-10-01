@@ -23,14 +23,14 @@ module MyTradeWizard
     def place_opening_trade_between(good_after, good_till)
       unless @action.nil?
         print "Opening trade: "
-        @ib.place_market_order(@account, @action, @quantity, @contract, good_after, good_till)
+        @ib.place_market_order_between(@account, @action, @quantity, @contract, good_after, good_till)
       end
     end
 
     def place_closing_trade_between(good_after, good_till)
       unless @action.nil?
         print "Closing trade: "
-        @ib.place_market_order(@account, @action.reverse, @quantity, @contract, good_after, good_till)
+        @ib.place_market_order_between(@account, @action.reverse, @quantity, @contract, good_after, good_till)
       end
     end
 
