@@ -17,6 +17,10 @@ module MyTradeWizard
       @hash.keys.max
     end
 
+    def most_recent
+      @hash[today]
+    end
+
     def day(day)
       @hash[day]
     end
