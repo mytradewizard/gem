@@ -46,6 +46,7 @@ module MyTradeWizard
       end
       
       def url(symbol, start_month, start_day, start_year, end_month, end_day, end_year, frequency)
+        symbol = symbol.gsub(" ", "-")
         query_string = "?s=#{symbol}&a=#{start_month}&b#{start_day}&c=#{start_year}&d=#{end_month}&e=#{end_day}&f=#{end_year}&g=#{frequency}"
         url = 'http://ichart.finance.yahoo.com/table.csv' + query_string
       end
