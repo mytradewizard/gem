@@ -2,7 +2,14 @@ module MyTradeWizard
   class Action
 
     def initialize(signal)
-      @signal = signal
+      case signal
+      when "BUY"
+        @signal = 1
+      when "SELL"
+        @signal = -1
+      else
+        @signal = signal
+      end
     end
 
     def to_s
