@@ -20,5 +20,13 @@ module MyTradeWizard
       end
     end
 
+    def each(&block)
+      @stocks.each(&block)
+    end
+
+    def remove(positions)
+      @stocks.reject { |stock| positions.any? { |position| position.stock == stock } }
+    end
+
   end
 end
