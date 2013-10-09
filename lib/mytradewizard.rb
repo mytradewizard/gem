@@ -14,6 +14,7 @@ require 'mytradewizard/stock_trading_system'
 require 'mytradewizard/future_trading_system'
 require 'mytradewizard/action'
 require 'mytradewizard/position'
+require 'mytradewizard/order'
 
 module MyTradeWizard
 end
