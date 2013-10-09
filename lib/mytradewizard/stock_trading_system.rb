@@ -5,13 +5,13 @@ module MyTradeWizard
 
     include MyTradeWizard::WatchLists
 
-    attr_accessor :watch_list
+    attr_accessor :watchlist
     attr_writer :position_size
 
     def initialize
       super
-      @watch_list = MyTradeWizard::WatchList.new
-      @position_size = 5000
+      @watchlist = MyTradeWizard::WatchList.new
+      #@position_size = 5000
       @data = nil
     end
 
@@ -35,12 +35,26 @@ module MyTradeWizard
       @data.day(day).close
     end
 
-    def buy
-      place_market_order "BUY", @position_size/close(t).floor, @stock.contract
+    def buy(stock)
+      order = MyTradeWizard::Order.new
+      order.action = MyTradeWizard::Action.new("BUY")
+      order.stock = stock
+      return order
     end
 
     def sell(position)
-      place_market_order "SELL", position.size, @stock.contract
+      output "SELL #{position.size} #{position.stock.symbol}"
+      place_market_order "SELL", position.size, position.stock.contract
+    end
+
+    def place(orders)
+      total_buying_power = @ib.buying_power(@account)
+      buying_power_per_order = total_buying_power / orders.length
+      orders.each do |order|
+        order.quantity = (buying_power_per_order / order.stock.price).floor
+        output "#{order.action} #{order.quantity} #{order.stock.symbol}"
+        place_market_order order.action.to_s, order.quantity, order.stock.contract
+      end
     end
 
   end

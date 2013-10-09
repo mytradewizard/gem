@@ -87,7 +87,7 @@ module MyTradeWizard
 
     def positions(account)
       p = Array.new
-      @ib_ruby.subscribe(:AccountValue, :PortfolioValue, :AccountUpdateTime, :AccountDownloadEnd) do |msg|
+      @ib_ruby.subscribe(:Alert, :AccountValue, :PortfolioValue, :AccountUpdateTime, :AccountDownloadEnd) do |msg|
         if msg.message_type == :PortfolioValue
           if msg.contract.sec_type == :stock
             stock = MyTradeWizard::Stock.new(msg.contract.symbol)
@@ -96,26 +96,46 @@ module MyTradeWizard
           end
         end
       end
-      @ib_ruby.send_message :RequestAccountData, :account_code => account
+      @ib_ruby.send_message :RequestAccountData, :subscribe => true, :account_code => account
+      @ib_ruby.wait_for :AccountDownloadEnd
+      @ib_ruby.send_message :RequestAccountData, :subscribe => false, :account_code => account
+      @ib_ruby.received[:AccountDownloadEnd].clear
       p
+    end
+
+    def buying_power(account)
+      buying_power = nil
+      @ib_ruby.subscribe(:Alert, :AccountValue, :PortfolioValue, :AccountUpdateTime, :AccountDownloadEnd) do |msg|
+        if msg.message_type == :AccountValue
+          if msg.data[:key] == "BuyingPower"
+            buying_power = msg.data[:value]
+          end
+        end
+      end
+      @ib_ruby.send_message :RequestAccountData, :subscribe => true, :account_code => account
+      @ib_ruby.wait_for :AccountDownloadEnd
+      @ib_ruby.send_message :RequestAccountData, :subscribe => false, :account_code => account
+      @ib_ruby.received[:AccountDownloadEnd].clear
+      buying_power.to_f
     end
 
     def place_market_order(account, action, quantity, contract)
       order = IB::Order.new :total_quantity => quantity,
                             :action => action.to_s,
                             :order_type => 'MKT',
+                            :tif => 'OPG',
                             :account => account
       @ib_ruby.wait_for :NextValidId
       @ib_ruby.place_order order, contract
-      puts "#{action} #{quantity} #{contract.symbol}"
+      #puts "#{action} #{quantity} #{contract.symbol}"
     end
 
     def place_market_order_between(account, action, quantity, contract, good_after, good_till)
       order = IB::Order.new :total_quantity => quantity,
                             :action => action.to_s,
                             :order_type => 'MKT',
-                            :good_after_time => "#{Time.now.utc.strftime('%Y%m%d')} #{good_after}",
-                            :good_till_date => "#{Time.now.utc.strftime('%Y%m%d')} #{good_till}",
+                            :good_after_time => good_after,
+                            :good_till_date => good_till,
                             :tif => 'GTD',
                             :account => account
       @ib_ruby.wait_for :NextValidId
@@ -123,12 +143,69 @@ module MyTradeWizard
       puts "#{action} #{quantity} #{contract.symbol} @ #{good_after}"
     end
 
+    def place_market_orders(account, action, quantity, contract, open_time, close_time)
+      good_after_open = Time.parse(open_time).strftime("%Y%m%d %H:%M:%S %Z")
+      good_till_open = (Time.parse(open_time) + 60).strftime("%Y%m%d %H:%M:%S %Z")
+      good_after_close = Time.parse(close_time).strftime("%Y%m%d %H:%M:%S %Z")
+      good_till_close = (Time.parse(close_time) + 60).strftime("%Y%m%d %H:%M:%S %Z")
+      if quantity.is_a? Fixnum
+        place_market_order_between(account, action, quantity, contract, good_after_open, good_till_open)
+        @ib_ruby.subscribe(:OrderStatus, :OpenOrderEnd) do |msg|
+          if msg.message_type == :OrderStatus
+            if msg.status == 'Submitted'
+              place_market_order_between(account, action.reverse, quantity, contract, good_after_close, good_till_close)
+            elsif msg.status == 'Cancelled'
+              puts "CANCELLED: #{action} #{quantity} #{contract.symbol} @ #{open_time}"
+            end
+          end
+        end
+        @ib_ruby.send_message :RequestAllOpenOrders
+        @ib_ruby.wait_for :OrderStatus
+      elsif quantity.is_a? Range
+        quantity.each do |q|
+          if q == quantity.first
+            place_market_order_between(account, action, q, contract, good_after_open, good_till_open)
+            @ib_ruby.subscribe(:OrderStatus, :OpenOrderEnd) do |msg|
+              if msg.message_type == :OrderStatus
+                if msg.status == 'Submitted'
+                  place_market_order_between(account, action.reverse, q, contract, good_after_close, good_till_close)
+                elsif msg.status == 'Cancelled'
+                  puts "CANCELLED: #{action} #{q} #{contract.symbol} @ #{open_time}"
+                  break
+                end
+              end
+            end
+            @ib_ruby.send_message :RequestAllOpenOrders, :subscribe => true, :account_code => account
+            @ib_ruby.wait_for :OrderStatus
+            @ib_ruby.send_message :RequestAllOpenOrders, :subscribe => false, :account_code => account
+            @ib_ruby.received[:OrderStatus].clear
+          else
+            place_market_order_between(account, action, 1, contract, good_after_open, good_till_open)
+            @ib_ruby.subscribe(:OrderStatus, :OpenOrderEnd) do |msg|
+              if msg.message_type == :OrderStatus
+                if msg.status == 'Submitted'
+                  place_market_order_between(account, action.reverse, 1, contract, good_after_close, good_till_close)
+                elsif msg.status == 'Cancelled'
+                  puts "CANCELLED: #{action} 1 #{contract.symbol} @ #{open_time}"
+                  break
+                end
+              end
+            end
+            @ib_ruby.send_message :RequestAllOpenOrders, :subscribe => true, :account_code => account
+            @ib_ruby.wait_for :OrderStatus
+            @ib_ruby.send_message :RequestAllOpenOrders, :subscribe => false, :account_code => account
+            @ib_ruby.received[:OrderStatus].clear
+          end
+        end
+      end
+    end
+
     def front_month(symbol)
       expiry = MyTradeWizard::CME.first_month(symbol)
       if invalid contract(symbol, expiry)
         expiry = MyTradeWizard::CME.second_month(symbol)
         if invalid contract(symbol, expiry)
-          raise ErrorDeterminingFrontMonth
+          raise 'ErrorDeterminingFrontMonth'
         end
       end
       contract(symbol, expiry)

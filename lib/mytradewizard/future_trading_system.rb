@@ -20,17 +20,17 @@ module MyTradeWizard
       @ib.hourly_bars(@contract, hourly_range, @live)
     end
 
-    def place_opening_trade_between(good_after, good_till)
-      unless @action.nil?
-        print "Opening trade: "
-        @ib.place_market_order_between(@account, @action, @quantity, @contract, good_after, good_till)
-      end
+    def actionize(signal)
+      @action = MyTradeWizard::Action.new(signal)
     end
 
-    def place_closing_trade_between(good_after, good_till)
+    def action
+      @action
+    end
+
+    def place_orders(open_time, close_time)
       unless @action.nil?
-        print "Closing trade: "
-        @ib.place_market_order_between(@account, @action.reverse, @quantity, @contract, good_after, good_till)
+        @ib.place_market_orders(@account, @action, @quantity, @contract, open_time, close_time)
       end
     end
 
