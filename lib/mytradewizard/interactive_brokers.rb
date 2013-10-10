@@ -1,9 +1,4 @@
 require 'ib'
-begin
-  require "#{Dir.pwd}/config/interactive_brokers"
-rescue LoadError
-  puts "Please configure Interactive Brokers!"
-end
 
 module MyTradeWizard
   class InteractiveBrokers
@@ -16,7 +11,7 @@ module MyTradeWizard
       exception = nil
       while (timeout.nil? || Time.now - start_time <= timeout)
         begin
-          @ib_ruby = IB::Connection.new :host => self.class.host, :port => self.class.port
+          @ib_ruby = IB::Connection.new :host => MyTradeWizard::Configuration::InteractiveBrokers::HOST, :port => MyTradeWizard::Configuration::InteractiveBrokers::PORT
           subscribe_to_alerts
           sleep 0.1
           fetch_accounts

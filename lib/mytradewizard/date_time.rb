@@ -3,12 +3,18 @@ module MyTradeWizard
 
     HR = 360
 
-    def wait_until(hour, minute)
-      print "Waiting until #{hour}:#{minute} ..."    
-      until time_is(hour, minute)
-        sleep 60
-        print '.'
+    def at(hour, minute)
+      unless MyTradeWizard::Configuration::ENV == 'local'
+        print "Waiting until #{hour}:#{minute} ..."    
+        until time_is(hour, minute)
+          sleep 60
+          print '.'
+        end
       end
+    end
+
+    def idle(seconds)
+      sleep(seconds) unless MyTradeWizard::Configuration::ENV == 'local'
     end
 
     def friday

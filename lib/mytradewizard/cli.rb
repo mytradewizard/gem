@@ -1,20 +1,23 @@
 require 'thor'
 require 'mytradewizard'
-require 'mytradewizard/generators/interactive_brokers'
+require 'mytradewizard/generators/mytradewizard'
 
 module MyTradeWizard
   class CLI < Thor
 
-    desc "configure [-- host HOST] [-- port PORT]", "Generate Interactive Brokers configuration"
-    method_options :host => :string, :port => :numeric
+    desc "configure [-- env ENV] [-- email EMAIL] [-- host HOST] [-- port PORT] [-- account ACCOUNT]", "Generate Interactive Brokers configuration"
+    method_options :env => :string, :email => :string, :host => :string, :port => :numeric, :account => :string
     def configure
-      MyTradeWizard::Generators::InteractiveBrokers.start([options[:host] || "localhost", options[:port] || 7496])
+      MyTradeWizard::Generators::MyTradeWizard.start([options[:env] || "local", options[:email] || "", options[:host] || "localhost", options[:port] || 7496, options[:account] || ""])
     end
 
     desc "config", "Display Interactive Brokers configuration"
     def config
-      puts "Host: " + MyTradeWizard::InteractiveBrokers.host
-      puts "Port: " + MyTradeWizard::InteractiveBrokers.port.to_s
+      puts "Env: " + MyTradeWizard::Configuration::ENV
+      puts "Email: " + MyTradeWizard::Configuration::EMAIL
+      puts "Host: " + MyTradeWizard::Configuration::InteractiveBrokers::HOST
+      puts "Port: " + MyTradeWizard::Configuration::InteractiveBrokers::PORT.to_s
+      puts "Account: " + MyTradeWizard::Configuration::InteractiveBrokers::ACCOUNT
     end
 
     desc "connect", "Connects to Interactive Brokers"

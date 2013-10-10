@@ -7,15 +7,10 @@ module MyTradeWizard
     def initialize
       @ib = MyTradeWizard::InteractiveBrokers.new
       @ib_ruby = @ib.connect
-      @live = false
-      @account = @ib.accounts.first
-      #fetch_positions
+      @env = MyTradeWizard::Configuration::ENV
+      @account = MyTradeWizard::Configuration::InteractiveBrokers::ACCOUNT.empty? ? @ib.accounts.first : MyTradeWizard::Configuration::InteractiveBrokers::ACCOUNT
+      @logger = Logger.new("/mtw/sys/#{self.class.to_s.downcase}/log/#{Time.now.strftime('%Y%m%d-%H%M')}") unless test?
       @orders = []
-    end
-
-    def account=(a)
-      @account = a
-      make_live
     end
 
     def positions
@@ -24,20 +19,6 @@ module MyTradeWizard
 
     def place_market_order(action, quantity, contract)
       @ib.place_market_order(@account, action, quantity, contract)
-    end
-
-    def make_live
-      @live = true
-      @logger = Logger.new("/mtw/log/#{self.class}/#{Time.now.strftime('%Y%m%d-%H%M')}.log")
-      #fetch_positions
-    end
-
-    def at(hour, minute)
-      wait_until(hour, minute) if @live
-    end
-
-    def idle(seconds)
-      sleep(seconds) if @live
     end
 
     def output(msg)
@@ -49,7 +30,7 @@ module MyTradeWizard
     end
 
     def test?
-      !@live
+      @env == 'local'
     end
 
   end

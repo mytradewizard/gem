@@ -15,6 +15,11 @@ require 'mytradewizard/future_trading_system'
 require 'mytradewizard/action'
 require 'mytradewizard/position'
 require 'mytradewizard/order'
+begin
+  require "#{Dir.pwd}/config/mytradewizard"
+rescue LoadError
+  puts "Please configure!"
+end
 
 module MyTradeWizard
 end

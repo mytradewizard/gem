@@ -4,11 +4,11 @@ Feature: Interactive Brokers configuration
 	I want My Trade Wizard to create and use a config file
 	
 	Scenario: Generate Interactive Brokers configuration
-		When I run `mtw configure localhost 7496`
+		When I run `mtw configure --host localhost --port 7496`
 		Then the following files should exist:
-			| ../../config/interactive_brokers.rb |
-		Then the file "../../config/interactive_brokers.rb" should contain "localhost"
-		Then the file "../../config/interactive_brokers.rb" should contain "7496"
+			| ../../config/mytradewizard.rb |
+		Then the file "../../config/mytradewizard.rb" should contain "localhost"
+		Then the file "../../config/mytradewizard.rb" should contain "7496"
 
 	Scenario: Display Interactive Brokers configuration
 		When I run `mtw config`
