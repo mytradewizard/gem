@@ -7,9 +7,12 @@ module MyTradeWizard
     def initialize
       @ib = MyTradeWizard::InteractiveBrokers.new
       @ib_ruby = @ib.connect
-      @env = MyTradeWizard::Configuration::ENV
+      @environment = MyTradeWizard::Configuration::ENVIRONMENT
       @account = MyTradeWizard::Configuration::InteractiveBrokers::ACCOUNT.empty? ? @ib.accounts.first : MyTradeWizard::Configuration::InteractiveBrokers::ACCOUNT
       @logger = Logger.new("/mtw/sys/#{self.class.to_s.downcase}/log/#{Time.now.strftime('%Y%m%d-%H%M')}") unless test?
+      @email = MyTradeWizard::Email.new
+      @email.subject = (production?) ? self.class.to_s : "#{@environment.upcase} #{self.class.to_s}"
+      @email.body = ""
       @orders = []
     end
 
@@ -29,8 +32,21 @@ module MyTradeWizard
       end
     end
 
+    def email(msg = nil)
+      if msg.nil?
+        return @email
+      else
+        @email.body = msg
+        @email.send
+      end
+    end
+
     def test?
-      @env == 'local'
+      @environment == 'local'
+    end
+
+    def production?
+      @environment == 'production'
     end
 
   end

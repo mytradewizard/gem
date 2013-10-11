@@ -4,7 +4,7 @@ module MyTradeWizard
     HR = 360
 
     def at(hour, minute)
-      unless MyTradeWizard::Configuration::ENV == 'local'
+      unless MyTradeWizard::Configuration::ENVIRONMENT == 'local'
         print "Waiting until #{hour}:#{minute} ..."    
         until time_is(hour, minute)
           sleep 60
@@ -14,7 +14,7 @@ module MyTradeWizard
     end
 
     def idle(seconds)
-      sleep(seconds) unless MyTradeWizard::Configuration::ENV == 'local'
+      sleep(seconds) unless MyTradeWizard::Configuration::ENVIRONMENT == 'local'
     end
 
     def friday

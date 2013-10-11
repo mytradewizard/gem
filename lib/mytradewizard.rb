@@ -15,6 +15,7 @@ require 'mytradewizard/future_trading_system'
 require 'mytradewizard/action'
 require 'mytradewizard/position'
 require 'mytradewizard/order'
+require 'mytradewizard/email'
 begin
   require "#{Dir.pwd}/config/mytradewizard"
 rescue LoadError

@@ -43,7 +43,7 @@ module MyTradeWizard
     end
 
     def sell(position)
-      output "SELL #{position.size} #{position.stock.symbol}"
+      email << "SELL #{position.size} #{position.stock.symbol}"
       place_market_order "SELL", position.size, position.stock.contract
     end
 
@@ -52,9 +52,10 @@ module MyTradeWizard
       buying_power_per_order = total_buying_power / orders.length
       orders.each do |order|
         order.quantity = (buying_power_per_order / order.stock.price).floor
-        output "#{order.action} #{order.quantity} #{order.stock.symbol}"
+        email << "#{order.action} #{order.quantity} #{order.stock.symbol}"
         place_market_order order.action.to_s, order.quantity, order.stock.contract
       end
+      email.send
     end
 
   end

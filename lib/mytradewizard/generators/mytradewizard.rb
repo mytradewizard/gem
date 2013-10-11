@@ -6,11 +6,13 @@ module MyTradeWizard
 
       include Thor::Actions
 
-      argument :env, :type => :string
-      argument :email, :type => :string      
+      argument :environment, :type => :string
       argument :host, :type => :string
       argument :port, :type => :numeric
       argument :account, :type => :string
+      argument :email_to, :type => :string
+      argument :gmail_username, :type => :string
+      argument :gmail_password, :type => :string
       
       def create_config
         empty_directory("config")

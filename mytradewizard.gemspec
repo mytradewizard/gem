@@ -24,6 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "tzinfo", "~> 0.3.29"
   gem.add_dependency "nokogiri"
   gem.add_dependency "thor"
+  gem.add_dependency "gmail"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
